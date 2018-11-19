@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import copy
 
 def RMSE(X, Y):
     """
@@ -41,7 +42,6 @@ def plot_time_series(X, Y, X_label=None, Y_label=None):
     ax.set_xticklabels(ax.get_xticks(), fontsize=10)
     ax.set_yticklabels(ax.get_yticks(), fontsize=10)
     ax.legend(fontsize=10, loc=0)
-    
     plt.show()
 
 def visualize_all(X, Y):
@@ -68,6 +68,18 @@ def df_to_X(train_df, feature_list):
     for i, feature in enumerate(feature_list):
         X[i, :] = train_df[feature].values
     return X
+
+def TSA_construct_X(incidents, data, station_id, feature_list):
+    days = data["Date"].unique()
+    # check affected days
+    affected_incidents = incidents.loc[incidents["Upstream"].isin([station_id]) | incidents["Downstream"].isin([station_id])]
+    affected_days = affected_incidents["Date"].unique()
+    # get unaffected days for station i
+    train_date = [day for day in days if day not in affected_days]
+    
+    normal_train_data = data.loc[data["Station ID"].isin([station_id]) & data["Date"].isin(train_date)]
+    
+    return df_to_X(normal_train_data, feature_list)
 
 def TSA_train(X):
     """
