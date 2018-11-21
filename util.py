@@ -69,8 +69,9 @@ def df_to_X(train_df, feature_list):
         X[i, :] = train_df[feature].values
     return X
 
-def TSA_construct_X(incidents, data, station_id, feature_list):
+def TSA_construct_X(incidents, data, station_id, feature_list, start_date, end_date):
     days = data["Date"].unique()
+    days = [day for day in days if (day >= start_date and day < end_date)]
     # check affected days
     affected_incidents = incidents.loc[incidents["Upstream"].isin([station_id]) | incidents["Downstream"].isin([station_id])]
     affected_days = affected_incidents["Date"].unique()
