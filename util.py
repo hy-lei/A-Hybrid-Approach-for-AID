@@ -131,3 +131,38 @@ def TSA_train(X):
     
     return best_alpha, best_S1, best_S2, best_Y
 
+# proprocessing functions
+def filter_holes(concat, output_path):
+    """
+       concat: a pandas dataframe object having at least the following columns:
+               - Station ID: name of a station
+               - datetime: date and time of the observation
+       output_path: the path of the output text file.  The text file contains information about,
+                    for each station,
+                    - hole between two dates
+                    - hole between different time within the same day
+    """
+    output_str = ""
+    stations = concat["Station ID"].unique()
+    for station in stations:
+        print(station)
+        output_str += str(station) + "\n"
+        substr_date = ""
+        substr_min = ""
+        df = concat.loc[concat["Station ID"] == station]
+        prev_date_time = None
+        for date_time in df["datetime"].values:
+            if prev_date_time is not None:
+                if date_time != prev_date_time + np.timedelta64(5, 'm'):
+                    prev_date = pd.Timestamp(prev_date_time).date()
+                    current_date = pd.Timestamp(date_time).date()
+                    if prev_date != current_date:
+                        substr_date += str(prev_date) + " " + str(current_date) + "\n"
+                        print(prev_date, current_date)
+                    else:
+                        substr_min += str(prev_date_time) + " " + str(date_time) + "\n"
+                        print(prev_date_time, date_time)
+            prev_date_time = date_time
+        output_str += "date:\n" + substr_date + "\nmin:\n" + substr_min + "\n"
+    with open(output_path, "w") as text_file:
+        print(output_str, file=text_file)
