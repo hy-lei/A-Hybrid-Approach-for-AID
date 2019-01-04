@@ -132,17 +132,30 @@ def TSA_train(X):
     return best_alpha, best_S1, best_S2, best_Y
 
 # proprocessing functions
-def filter_holes(concat, output_path):
+def filter_holes(concat, txt_path, csv_path):
     """
        concat: a pandas dataframe object having at least the following columns:
                - Station ID: name of a station
                - datetime: date and time of the observation
-       output_path: the path of the output text file.  The text file contains information about,
-                    for each station,
-                    - hole between two dates
-                    - hole between different time within the same day
+       txt_path: the path of the output text file.  The text file contains information about,
+                 for each station,
+                 - hole between two dates
+                 - hole between different time within the same day
+       csv_path: the path of the output csv file.  The csv file has the following columns:
+                 - Station ID
+                 - start date: has value iff type of record is 'd'
+                 - end date: has value iff type of record is 'd'
+                 - start time: has value iff type of record is 't'
+                 - end time: has value iff type of record is 't'
     """
     output_str = ""
+    stations_arr = []
+    start_date_arr = []
+    end_date_arr = []
+    start_time_arr = []
+    end_time_arr = []
+    type_arr = []
+    
     stations = concat["Station ID"].unique()
     for station in stations:
         print(station)
@@ -156,13 +169,45 @@ def filter_holes(concat, output_path):
                 if date_time != prev_date_time + np.timedelta64(5, 'm'):
                     prev_date = pd.Timestamp(prev_date_time).date()
                     current_date = pd.Timestamp(date_time).date()
+                    stations_arr.append(station)
+                    
                     if prev_date != current_date:
                         substr_date += str(prev_date) + " " + str(current_date) + "\n"
+                        
+                        start_date_arr.append(str(prev_date))
+                        end_date_arr.append(str(current_date))
+                        start_time_arr.append(None)
+                        end_time_arr.append(None)
+                        type_arr.append('d')
+                        
                         print(prev_date, current_date)
                     else:
                         substr_min += str(prev_date_time) + " " + str(date_time) + "\n"
+                        
+                        start_date_arr.append(prev_date)
+                        end_date_arr.append(current_date)
+                        start_time_arr.append(prev_date_time)
+                        end_time_arr.append(date_time)
+                        type_arr.append('t')
+                        
                         print(prev_date_time, date_time)
             prev_date_time = date_time
         output_str += "date:\n" + substr_date + "\nmin:\n" + substr_min + "\n"
-    with open(output_path, "w") as text_file:
-        print(output_str, file=text_file)
+    
+    report_df = pd.DataFrame({
+        'Station ID': stations_arr,
+        'start date': start_date_arr,
+        'end date': end_date_arr,
+        'start time': start_time_arr,
+        'end time': end_time_arr,
+        'type': type_arr
+    })
+    
+    if txt_path != None:
+        with open(txt_path, "w") as text_file:
+            print(output_str, file=text_file)
+    
+    if csv_path != None:
+        report_df.to_csv(csv_path, index=False)
+    
+    return report_df
