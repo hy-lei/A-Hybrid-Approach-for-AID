@@ -14,6 +14,7 @@ This repo started from replication of paper by Wang et. al, A Hybrid Approach fo
 
 ## Progress/Improvements (on features)
 The two notebooks below illustrates the pipeline from data preprocessing to model evaluation.
+![pipeline](docs/img/pipeline.png)
 
 - `hybrid_sev_weekday.ipynb`: historical speed/flow/occupancy, severity parameters, and weekday/weekend indicator.
 - `hybrid_with_severity_params_and_weekdays.ipynb`: historical speed/flow/occupancy and severity parameters.  This model incorporates weekday/weekend information using an ensemble approach, namely there are different models are trained on weekday and weekend data.
