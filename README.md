@@ -17,7 +17,7 @@ The two notebooks below illustrates the pipeline from data preprocessing to mode
 ![pipeline](docs/img/pipeline.png)
 
 - `hybrid_sev_weekday.ipynb`: historical speed/flow/occupancy, severity parameters, and weekday/weekend indicator.
-- `hybrid_with_severity_params_and_weekdays.ipynb`: historical speed/flow/occupancy and severity parameters.  This model incorporates weekday/weekend information using an ensemble approach, namely there are different models are trained on weekday and weekend data.
+- `hybrid_with_severity_params_and_weekdays.ipynb`: historical speed/flow/occupancy and severity parameters.  This model incorporates weekday/weekend information using an ensemble approach, namely, models can be trained on weekday and weekend data separately.
 
 ## TODO:
 - Bootstrap evaluation: write scripts to run models repeatedly.
